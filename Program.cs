@@ -4,8 +4,6 @@ using System.Diagnostics;
 MyTrialKitchen myKitchen = new MyTrialKitchen();
 myKitchen.Menu();
 
-// fixa att det står Välj köksapparat: även om lista när null
-
 namespace KitchenAppliances
 {
     public interface IKitchenAppliance
@@ -23,6 +21,19 @@ namespace KitchenAppliances
         public abstract void ListAppliances(bool extendedList, bool returnToMenu);
         public abstract void RemoveAppliance();
         public abstract void EditAppliance();
+    }
+
+    public class Appliance : IKitchenAppliance
+    {
+        public string Type { get; set; }
+        public string Brand { get; set; }
+        public bool IsFunctioning { get; set; }
+        public Appliance(string Type, string Brand, bool IsFunctioning)
+        {
+            this.Type = Type;
+            this.Brand = Brand;
+            this.IsFunctioning = IsFunctioning;
+        }
     }
 
     public class MyTrialKitchen : Kitchen
@@ -500,19 +511,6 @@ namespace KitchenAppliances
                 Console.WriteLine("Något gick fel. Försök igen.");
             }
             Menu();
-        }
-    }
-
-    public class Appliance : IKitchenAppliance
-    {
-        public string Type { get; set; }
-        public string Brand { get; set; }
-        public bool IsFunctioning { get; set; }
-        public Appliance(string Type, string Brand, bool IsFunctioning)
-        {
-            this.Type = Type;
-            this.Brand = Brand;
-            this.IsFunctioning = IsFunctioning;
         }
     }
 }
