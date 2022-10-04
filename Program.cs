@@ -15,39 +15,9 @@ namespace KitchenAppliances
 
     public abstract class Kitchen
     {
-        public abstract void Menu();
-        public abstract void UseAppliance();
-        public abstract void AddAppliance();
-        public abstract void ListAppliances(bool extendedList, bool returnToMenu);
-        public abstract void RemoveAppliance();
-        public abstract void EditAppliance();
-    }
+        public bool avsluta = false;
 
-    public class Appliance : IKitchenAppliance
-    {
-        public string Type { get; set; }
-        public string Brand { get; set; }
-        public bool IsFunctioning { get; set; }
-        public Appliance(string Type, string Brand, bool IsFunctioning)
-        {
-            this.Type = Type;
-            this.Brand = Brand;
-            this.IsFunctioning = IsFunctioning;
-        }
-    }
-
-    public class MyTrialKitchen : Kitchen
-    {
-        bool avsluta = false;
-
-        List<Appliance> appliances = new List<Appliance>()
-        {
-            new Appliance("Microvågsugn", "Electrolux", true),
-            new Appliance("Vattenkokare", "Delonghi", true),
-            new Appliance("Elvisp", "OBH Nordica", false)
-        };
-
-        public override void Menu()
+        public void Menu()
         {
             Console.WriteLine();
             Console.WriteLine("======== KÖKET ========");
@@ -135,6 +105,34 @@ namespace KitchenAppliances
                 }
             }
         }
+        public abstract void UseAppliance();
+        public abstract void AddAppliance();
+        public abstract void ListAppliances(bool extendedList, bool returnToMenu);
+        public abstract void RemoveAppliance();
+        public abstract void EditAppliance();
+    }
+
+    public class Appliance : IKitchenAppliance
+    {
+        public string Type { get; set; }
+        public string Brand { get; set; }
+        public bool IsFunctioning { get; set; }
+        public Appliance(string Type, string Brand, bool IsFunctioning)
+        {
+            this.Type = Type;
+            this.Brand = Brand;
+            this.IsFunctioning = IsFunctioning;
+        }
+    }
+
+    public class MyTrialKitchen : Kitchen
+    {
+        List<Appliance> appliances = new List<Appliance>()
+        {
+            new Appliance("Microvågsugn", "Electrolux", true),
+            new Appliance("Vattenkokare", "Delonghi", true),
+            new Appliance("Elvisp", "OBH Nordica", false)
+        };
 
         public override void UseAppliance()
         {
