@@ -1,5 +1,4 @@
 ﻿using KitchenAppliances;
-using System.Diagnostics;
 
 MyTrialKitchen myKitchen = new MyTrialKitchen();
 myKitchen.Menu();
@@ -17,7 +16,7 @@ namespace KitchenAppliances
     {
         public bool avsluta = false;
 
-        public void Menu()
+        public virtual void Menu()
         {
             Console.WriteLine();
             Console.WriteLine("======== KÖKET ========");
@@ -25,91 +24,17 @@ namespace KitchenAppliances
             Console.WriteLine("2. Lägg till köksapparat");
             Console.WriteLine("3. Lista köksapparater");
             Console.WriteLine("4. Ta bort köksapparat");
-            Console.WriteLine("5. Redigera köksapparat");
-            Console.WriteLine("6. Avsluta programmet");
-            Console.WriteLine("Ange val:");
-            Console.Write("> ");
-
-            while (!avsluta)
-            {
-                try
-                {
-                    string stringInput = Console.ReadLine();
-
-                    if (stringInput != null)
-                    {
-                        try
-                        {
-                            int.TryParse(stringInput, out int intInput);
-
-                            switch (intInput)
-                            {
-                                case 1:
-                                    UseAppliance();
-                                    break;
-                                case 2:
-                                    AddAppliance();
-                                    break;
-                                case 3:
-                                    ListAppliances(true, true);
-                                    break;
-                                case 4:
-                                    RemoveAppliance();
-                                    break;
-                                case 5:
-                                    EditAppliance();
-                                    break;
-                                case 6:
-                                    try
-                                    {
-                                        Console.WriteLine("Hej då!");
-                                    }
-                                    catch (IOException ex)
-                                    {
-                                        Debug.WriteLine(ex);
-                                    }
-                                    Environment.Exit(0);
-                                    break;
-                                default:
-                                    try
-                                    {
-                                        Console.WriteLine("Ogiltig input");
-                                    }
-                                    catch (IOException ex)
-                                    {
-                                        Debug.WriteLine(ex);
-                                    }
-                                    break;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine(ex);
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine("Något gick fel. Försök igen.");
-                    Debug.WriteLine(ex);
-                }
-                catch (OutOfMemoryException ex)
-                {
-                    Console.WriteLine("Något gick fel. Försök igen.");
-                    Debug.WriteLine(ex);
-                }
-                catch (ArgumentOutOfRangeException ex)
-                {
-                    Console.WriteLine("Något gick fel. Försök igen.");
-                    Debug.WriteLine(ex);
-                }
-            }
+            Console.WriteLine("5. Avsluta programmet");      
         }
-        public abstract void UseAppliance();
+        public virtual void UseAppliance()
+        {
+            Console.WriteLine("Detta är ett exempel på en abstract class.");
+            Console.WriteLine("Detta meddelande kommer inte att synas för att jag gör en override på metoden.");
+        }
         public abstract void AddAppliance();
         public abstract void ListAppliances(bool extendedList, bool returnToMenu);
         public abstract void RemoveAppliance();
-        public abstract void EditAppliance();
+        public abstract void DisplayErrorMessage(string message);
     }
 
     public class Appliance : IKitchenAppliance
@@ -133,7 +58,75 @@ namespace KitchenAppliances
             new Appliance("Vattenkokare", "Delonghi", true),
             new Appliance("Elvisp", "OBH Nordica", false)
         };
+        public override void Menu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("======== KÖKET ========");
+            Console.WriteLine("1. Använd köksapparat");
+            Console.WriteLine("2. Lägg till köksapparat");
+            Console.WriteLine("3. Lista köksapparater");
+            Console.WriteLine("4. Ta bort köksapparat");
+            Console.WriteLine("5. Avsluta programmet");
+            Console.WriteLine("Ange val:");
+            Console.Write("> ");
 
+            while (!avsluta)
+            {
+                try
+                {
+                    int menuInput = int.Parse(Console.ReadLine());
+
+                    switch (menuInput)
+                    {
+                        case 1:
+                            UseAppliance();
+                            break;
+                        case 2:
+                            AddAppliance();
+                            break;
+                        case 3:
+                            ListAppliances(true, true);
+                            break;
+                        case 4:
+                            RemoveAppliance();
+                            break;
+                        case 5:
+                            try
+                            {
+                                Console.WriteLine("Hej då!");
+                            }
+                            catch (IOException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            Environment.Exit(0);
+                            break;
+                        default:
+                            try
+                            {
+                                Console.WriteLine("Ogiltig input");
+                            }
+                            catch (IOException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            break;
+                    }                   
+                }
+                catch (ArgumentNullException e)
+                {
+                    DisplayErrorMessage(e.Message);
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Något gick fel. Försök igen.");
+                }
+                catch (OverflowException e)
+                {
+                    DisplayErrorMessage(e.Message);
+                }
+            }
+        }
         public override void UseAppliance()
         {
             Console.WriteLine("Välj köksapparat:");
@@ -144,47 +137,33 @@ namespace KitchenAppliances
 
             try
             {
-                string stringInput = Console.ReadLine();
-                if (stringInput != null)
-                {
-                    try
-                    {
-                        int.TryParse(stringInput, out int intInput);
-                        intInput = intInput - 1;
+                int input = int.Parse(Console.ReadLine()) - 1;
 
-                        if (intInput < numberOfAppliances || intInput >= 0)
-                        {
-                            if (appliances[intInput].IsFunctioning == true)
-                                Console.WriteLine($"Använder {appliances[intInput].Type}...");
-                            else
-                                Console.WriteLine($"Kan inte använda {appliances[intInput].Type} då den är trasig.");
-                        }
-                        else
-                            Console.WriteLine("Numret du angav finns inte i listan.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex);
-                        throw;
-                    }
+                if (input < numberOfAppliances && input >= 0)
+                {
+                    if (appliances[input].IsFunctioning == true)
+                        Console.WriteLine($"Använder {appliances[input].Type}...");
+                    else
+                        Console.WriteLine($"Kan inte använda {appliances[input].Type} då den är trasig.");
                 }
-                if (stringInput == null)
-                    Console.WriteLine("Något gick fel.");
+                else
+                {
+                    Console.WriteLine("Numret du angav finns inte i listan. Försök igen.\n");
+                    UseAppliance();
+                }
             }
-            catch (IOException ex)
+            catch (ArgumentNullException e)
             {
-                Console.WriteLine("Något gick fel.");
-                Debug.WriteLine(ex);
+                DisplayErrorMessage(e.Message);
             }
-            catch (OutOfMemoryException ex)
+            catch (FormatException)
             {
-                Console.WriteLine("Något gick fel.");
-                Debug.WriteLine(ex);
+                Console.WriteLine("Du måste fylla i ett värde från listan. Försök igen.\n");
+                UseAppliance();
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (OverflowException e)
             {
-                Console.WriteLine("Något gick fel.");
-                Debug.WriteLine(ex);
+                DisplayErrorMessage(e.Message);
             }
             Menu();
         }
@@ -194,77 +173,49 @@ namespace KitchenAppliances
             {
                 Console.Write("Ange typ: ");
                 string typeInput = Console.ReadLine();
-                try
-                {
-                    Console.Write("Ange märke: ");
-                    string brandInput = Console.ReadLine();
-                    try
-                    {
-                        Console.Write("Ange om den fungerar j/n: ");
-                        string functionInput = Console.ReadLine().ToLower();
 
-                        if (functionInput == "j")
-                        {
-                            if (typeInput != null && brandInput != null)
-                            {
-                                appliances.Add(new Appliance(typeInput, brandInput, true));
-                                Console.WriteLine("Tillagd!");
-                            }
-                            else if (typeInput == null || brandInput == null)
-                                Console.WriteLine("Något gick fel med input.");
-                            Menu();
-                        }
-                        if (functionInput == "n")
-                        {
-                            if (typeInput != null && brandInput != null)
-                            {
-                                appliances.Add(new Appliance(typeInput, brandInput, false));
-                                Console.WriteLine("Tillagd!");
-                            }
-                            else if (typeInput == null || brandInput == null)
-                                Console.WriteLine("Något gick fel med input.");
-                            Menu();
-                        }
-                        else
-                            Console.WriteLine("Något gick fel.");
-                    }
-                    catch (IOException)
-                    {
-                        Console.WriteLine("Någt gick fel.");
-                    }
-                    catch (OutOfMemoryException)
-                    {
-                        Console.WriteLine("Något gick fel.");
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        Console.WriteLine("Något gick fel.");
-                    }
-                }
-                catch (IOException)
+                Console.Write("Ange märke: ");
+                string brandInput = Console.ReadLine();
+
+                Console.Write("Ange om den fungerar j/n: ");
+                string functionInput = Console.ReadLine().ToLower();
+
+                if (functionInput == "j")
                 {
-                    Console.WriteLine("Någt gick fel.");
+                    if (typeInput != null && brandInput != null)
+                    {
+                        appliances.Add(new Appliance(typeInput, brandInput, true));
+                        Console.WriteLine("Tillagd!");
+                    }
+                    else if (typeInput == null || brandInput == null)
+                        Console.WriteLine("Något gick fel med input.");
+                    Menu();
                 }
-                catch (OutOfMemoryException)
+                if (functionInput == "n")
                 {
+                    if (typeInput != null && brandInput != null)
+                    {
+                        appliances.Add(new Appliance(typeInput, brandInput, false));
+                        Console.WriteLine("Tillagd!");
+                    }
+                    else if (typeInput == null || brandInput == null)
+                        Console.WriteLine("Något gick fel med input.");
+                    Menu();
+                }
+                else
                     Console.WriteLine("Något gick fel.");
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    Console.WriteLine("Något gick fel.");
-                }
             }
-            catch (IOException)
+            catch (IOException e)
             {
-                Console.WriteLine("Någt gick fel.");
+                DisplayErrorMessage(e.Message);
             }
-            catch (OutOfMemoryException)
+            catch (OutOfMemoryException e)
             {
-                Console.WriteLine("Något gick fel.");
+                DisplayErrorMessage(e.Message);
             }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException e)
             {
-                Console.WriteLine("Något gick fel.");
+                DisplayErrorMessage(e.Message);
             }
             Menu();
         }
@@ -305,209 +256,38 @@ namespace KitchenAppliances
             try
             {
                 int input = int.Parse(Console.ReadLine()) - 1;
-                if (input < numberOfAppliances || input >= 0)
+                if (input < numberOfAppliances && input >= 0)
                 {
                     appliances.RemoveAt(input);
                     Console.WriteLine("Borttagen.");
                 }
                 else
+                {
                     Console.WriteLine("Numret du angav finns inte i listan.");
+                    RemoveAppliance();
+                }
             }
-            catch (ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException e)
             {
-                Console.WriteLine("Något gick fel. Försök igen.");
+                DisplayErrorMessage(e.Message);
             }
             catch (FormatException)
             {
-                Console.WriteLine("Något gick fel. Försök igen.");
+                Console.WriteLine("Du måste välja ett nummer från listan.");
+                RemoveAppliance();
             }
-            catch (OverflowException)
+            catch (OverflowException e)
             {
-                Console.WriteLine("Något gick fel. Försök igen.");
+                DisplayErrorMessage(e.Message);
             }
             Menu();
         }
-        public override void EditAppliance()
+        public override void DisplayErrorMessage(string message)
         {
-            Console.WriteLine("Välj köksapparat:");
-            ListAppliances(true, false);
-
-            int numberOfAppliances = appliances.Count;
-
-            try
-            {
-                int input = int.Parse(Console.ReadLine()) - 1;
-
-                if (input < numberOfAppliances && input >= 0)
-                {
-                    Console.WriteLine("Vad vill du ändra?");
-                    Console.WriteLine("1. Namnet");
-                    Console.WriteLine("2. Märket");
-                    Console.WriteLine("3. Skicket");
-                    Console.Write("> ");
-                    try
-                    {
-                        int input2 = int.Parse(Console.ReadLine());
-
-                        switch (input2)
-                        {
-                            case 1:
-                                Console.Write("För in det nya namnet: ");
-                                try
-                                {
-                                    string newType = Console.ReadLine();
-                                    if (newType == null)
-                                        Console.WriteLine("Ogiltig input.");
-                                    else if (newType != null)
-                                    {
-                                        appliances[input].Type = newType;
-                                        Console.WriteLine("Din ändring är genomförd.");
-                                    }
-                                }
-                                catch (IOException)
-                                {
-                                    Console.WriteLine("Något gick fel.");
-                                }
-                                catch (OutOfMemoryException)
-                                {
-                                    Console.WriteLine("Något gick fel.");
-                                }
-                                catch (ArgumentOutOfRangeException)
-                                {
-                                    Console.WriteLine("Något gick fel.");
-                                }
-                                break;
-                            case 2:
-                                Console.Write("För in det nya märket: ");
-                                try
-                                {
-                                    string newBrand = Console.ReadLine();
-                                    if (newBrand == null)
-                                        Console.WriteLine("Ogiltig input.");
-                                    else if (newBrand != null)
-                                    {
-                                        appliances[input].Brand = newBrand;
-                                        Console.WriteLine("Din ändring är genomförd.");
-                                    }
-                                }
-                                catch (IOException)
-                                {
-                                    Console.WriteLine("Något gick fel.");
-                                }
-                                catch (OutOfMemoryException)
-                                {
-                                    Console.WriteLine("Något gick fel.");
-                                }
-                                catch (ArgumentOutOfRangeException)
-                                {
-                                    Console.WriteLine("Något gick fel.");
-                                }
-                                break;
-                            case 3:
-                                if (appliances[input].IsFunctioning == true)
-                                {
-                                    Console.WriteLine($"{appliances[input].Type} är fungerande. Ändra till trasig? j/n");
-                                    try
-                                    {
-                                        string changeFunction = Console.ReadLine().ToLower();
-                                        if (changeFunction != "n" && changeFunction != "j")
-                                            Console.WriteLine("Någonting gick fel med input.");
-                                        if (changeFunction == "j")
-                                        {
-                                            appliances[input].IsFunctioning = false;
-                                            Console.WriteLine($"{appliances[input].Type} är nu trasig.");
-                                        }
-                                        if (changeFunction == "n")
-                                            Console.WriteLine("Ingenting ändrades.");
-                                    }
-                                    catch (IOException)
-                                    {
-                                        Console.WriteLine("Något gick fel.");
-                                    }
-                                    catch (OutOfMemoryException)
-                                    {
-                                        Console.WriteLine("Något gick fel.");
-                                    }
-                                    catch (ArgumentOutOfRangeException)
-                                    {
-                                        Console.WriteLine("Något gick fel.");
-                                    }
-                                }
-                                if (appliances[input].IsFunctioning == false)
-                                {
-                                    Console.WriteLine($"{appliances[input].Type} är trasig. Ändra till fungerande? j/n");
-                                    try
-                                    {
-                                        string changeFunction = Console.ReadLine().ToLower();
-
-                                        if (changeFunction == "j")
-                                        {
-                                            appliances[input].IsFunctioning = true;
-                                            Console.WriteLine($"{appliances[input].Type} är nu fungerande.");
-                                        }
-                                        if (changeFunction == "n")
-                                            Console.WriteLine("Ingenting ändrades.");
-                                        else
-                                            Console.WriteLine("Någonting gick fel med input.");
-                                    }
-                                    catch (IOException)
-                                    {
-                                        Console.WriteLine("Något gick fel.");
-                                    }
-                                    catch (OutOfMemoryException)
-                                    {
-                                        Console.WriteLine("Något gick fel.");
-                                    }
-                                    catch (ArgumentOutOfRangeException)
-                                    {
-                                        Console.WriteLine("Något gick fel.");
-                                    }
-                                }
-                                else
-                                    Console.WriteLine("Något gick fel.");
-                                break;
-                            default:
-                                Console.WriteLine("Ogiltig input.");
-                                break;
-                        }
-                    }
-                    catch (ArgumentNullException)
-                    {
-                        Console.WriteLine("Något gick fel. Försök igen.");
-                    }
-                    catch (FormatException)
-                    {
-                        Console.WriteLine("Något gick fel. Försök igen.");
-                    }
-                    catch (OverflowException)
-                    {
-                        Console.WriteLine("Något gick fel. Försök igen.");
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Något gick fel. Försök igen.");
-                    }
-
-                }
-                else
-                    Console.WriteLine("Numret du angav finns inte i listan.");
-            }
-            catch (ArgumentNullException)
-            {
-                Console.WriteLine("Något gick fel. Försök igen.");
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Något gick fel. Försök igen.");
-            }
-            catch (OverflowException)
-            {
-                Console.WriteLine("Något gick fel. Försök igen.");
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Något gick fel. Försök igen.");
-            }
+            Console.WriteLine("Någonting gick fel.");
+            Console.WriteLine($"Visa följande kod för din programmerare: \"{message}\"");
+            Console.WriteLine("Tryck på valfri tangent för att återgå till menyn.");
+            Console.ReadKey();
             Menu();
         }
     }
