@@ -34,6 +34,7 @@ namespace KitchenAppliances
         public abstract void AddAppliance();
         public abstract void ListAppliances(bool extendedList, bool returnToMenu);
         public abstract void RemoveAppliance();
+        public abstract void EditAppliance();
         public abstract void DisplayErrorMessage(string message);
     }
 
@@ -66,7 +67,8 @@ namespace KitchenAppliances
             Console.WriteLine("2. Lägg till köksapparat");
             Console.WriteLine("3. Lista köksapparater");
             Console.WriteLine("4. Ta bort köksapparat");
-            Console.WriteLine("5. Avsluta programmet");
+            Console.WriteLine("5. Redigera köksapparat");
+            Console.WriteLine("6. Avsluta programmet");
             Console.WriteLine("Ange val:");
             Console.Write("> ");
 
@@ -91,6 +93,9 @@ namespace KitchenAppliances
                             RemoveAppliance();
                             break;
                         case 5:
+                            EditAppliance();
+                            break;
+                        case 6:
                             try
                             {
                                 Console.WriteLine("Hej då!");
@@ -277,6 +282,160 @@ namespace KitchenAppliances
                 RemoveAppliance();
             }
             catch (OverflowException e)
+            {
+                DisplayErrorMessage(e.Message);
+            }
+            Menu();
+        }
+        public override void EditAppliance()
+        {
+            Console.WriteLine("Välj köksapparat:");
+            ListAppliances(true, false);
+
+            int numberOfAppliances = appliances.Count;
+
+            try
+            {
+                int input = int.Parse(Console.ReadLine()) - 1;
+
+                if (input < numberOfAppliances && input >= 0)
+                {
+                    Console.WriteLine("Vad vill du ändra?");
+                    Console.WriteLine("1. Namnet");
+                    Console.WriteLine("2. Märket");
+                    Console.WriteLine("3. Skicket");
+                    Console.Write("> ");
+
+                    int input2 = int.Parse(Console.ReadLine());
+
+                    switch (input2)
+                    {
+                        case 1:
+                            Console.Write("För in det nya namnet: ");
+                            try
+                            {
+                                string newType = Console.ReadLine();
+                                appliances[input].Type = newType;
+                                Console.WriteLine("Din ändring är genomförd.");
+                            }
+                            catch (IOException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            catch (OutOfMemoryException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            break;
+                        case 2:
+                            Console.Write("För in det nya märket: ");
+                            try
+                            {
+                                string newBrand = Console.ReadLine();
+                                appliances[input].Brand = newBrand;
+                                Console.WriteLine("Din ändring är genomförd.");
+                            }
+                            catch (IOException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            catch (OutOfMemoryException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                DisplayErrorMessage(e.Message);
+                            }
+                            break;
+                        case 3:
+                            if (appliances[input].IsFunctioning == true)
+                            {
+                                Console.WriteLine($"{appliances[input].Type} är fungerande. Ändra till trasig? j/n");
+                                try
+                                {
+                                    string changeFunction = Console.ReadLine().ToLower();
+                                    if (changeFunction != "n" && changeFunction != "j")
+                                        Console.WriteLine("Någonting gick fel med input.");
+                                    if (changeFunction == "j")
+                                    {
+                                        appliances[input].IsFunctioning = false;
+                                        Console.WriteLine($"{appliances[input].Type} är nu trasig.");
+                                    }
+                                    if (changeFunction == "n")
+                                        Console.WriteLine("Ingenting ändrades.");
+                                }
+                                catch (IOException e)
+                                {
+                                    DisplayErrorMessage(e.Message);
+                                }
+                                catch (OutOfMemoryException e)
+                                {
+                                    DisplayErrorMessage(e.Message);
+                                }
+                                catch (ArgumentOutOfRangeException e)
+                                {
+                                    DisplayErrorMessage(e.Message);
+                                }
+                            }
+                            if (appliances[input].IsFunctioning == false)
+                            {
+                                Console.WriteLine($"{appliances[input].Type} är trasig. Ändra till fungerande? j/n");
+                                try
+                                {
+                                    string changeFunction = Console.ReadLine().ToLower();
+
+                                    if (changeFunction == "j")
+                                    {
+                                        appliances[input].IsFunctioning = true;
+                                        Console.WriteLine($"{appliances[input].Type} är nu fungerande.");
+                                    }
+                                    else if (changeFunction == "n")
+                                        Console.WriteLine("Ingenting ändrades.");
+                                    else
+                                        Console.WriteLine("Någonting gick fel med input.");
+                                }
+                                catch (IOException e)
+                                {
+                                    DisplayErrorMessage(e.Message);
+                                }
+                                catch (OutOfMemoryException e)
+                                {
+                                    DisplayErrorMessage(e.Message);
+                                }
+                                catch (ArgumentOutOfRangeException e)
+                                {
+                                    DisplayErrorMessage(e.Message);
+                                }
+                            }
+                            else
+                                Console.WriteLine("Något gick fel.");
+                            break;
+                        default:
+                            Console.WriteLine("Ogiltig input.");
+                            break;
+                        }
+                    }
+                else
+                    Console.WriteLine("Numret du angav finns inte i listan.");
+            }
+            catch (ArgumentNullException e)
+            {
+                DisplayErrorMessage(e.Message);
+            }
+            catch (FormatException e)
+            {
+                DisplayErrorMessage(e.Message);
+            }
+            catch (OverflowException e)
+            {
+                DisplayErrorMessage(e.Message);
+            }
+            catch (Exception e)
             {
                 DisplayErrorMessage(e.Message);
             }
